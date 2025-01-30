@@ -1,26 +1,38 @@
 import connection from '../data/db.js';
 
 function index(req, res, next) {
-    const filter = req.query.filter;
-    const sql = "SELECT * FROM `movies`;";
-    connection.query(sql, (err, result) => {
+    const title = req.query.title;
+    const director = req.query.director;
+    const release_year = req.query.release_year;
+    const genre = req.query.genre;
+    let filters = ["title", title, "director", director, "release_year", release_year, "genre", genre];
+
+    let sql = "SELECT * FROM `movies` ";
+    let params = []
+    if (req.query) {
+        for (let i = 1; i < filters.length; i = i + 2) {
+            if (filters[i] !== undefined) {
+                if (sql == "SELECT * FROM `movies` ") {
+                    sql = sql + `WHERE ${filters[i - 1]} LIKE ? `
+                    const x = `%${filters[i]}%`
+                    params.push(x)
+                } else {
+                    sql = sql + `AND ${filters[i - 1]} LIKE ? `
+                    const x = `%${filters[i]}%`
+                    params.push(x)
+                }
+            }
+        }
+    }
+
+    connection.query(sql, params, (err, result) => {
         if (err) {
             next(new Error("Errore interno del server"));
         }
-        let filmDaMostrare = result
-        if (filter !== undefined) {
-            filmDaMostrare = result.filter((curElem, i) => {
-                let flag = false
-                if ((result[i].title.includes(filter)) || (result[i].director.includes(filter)) || (result[i].title.includes(filter))) {
-                    flag = true;
-                }
-                return flag;
-            })
-        }
         res.json({
             status: "Success",
-            tot: filmDaMostrare.length,
-            data: filmDaMostrare,
+            tot: result.length,
+            data: result,
         })
     })
 }

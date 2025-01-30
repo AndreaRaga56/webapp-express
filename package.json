@@ -2,7 +2,7 @@
   "name": "webapp-express",
   "version": "1.0.0",
   "main": "app.js",
-  "type":"module",  
+  "type": "module",
   "scripts": {
     "start": "node --env-file=.env app.js",
     "dev": "node --env-file=.env --watch app.js"
