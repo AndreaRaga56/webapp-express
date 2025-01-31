@@ -1,23 +1,24 @@
 import connection from '../data/db.js';
 
 function index(req, res, next) {
-    const title = req.query.title;
-    const director = req.query.director;
-    const release_year = req.query.release_year;
-    const genre = req.query.genre;
-    let filters = ["title", title, "director", director, "release_year", release_year, "genre", genre];
-
     let sql = "SELECT * FROM `movies` ";
     let params = []
+    let filters = []
+
     if (req.query) {
+        for (const key in req.query) {
+            filters.push({ key })
+            filters.push(req.query[key])
+        }
+
         for (let i = 1; i < filters.length; i = i + 2) {
             if (filters[i] !== undefined) {
                 if (sql == "SELECT * FROM `movies` ") {
-                    sql = sql + `WHERE ${filters[i - 1]} LIKE ? `
+                    sql = sql + `WHERE ${filters[i - 1].key} LIKE ? `
                     const x = `%${filters[i]}%`
                     params.push(x)
                 } else {
-                    sql = sql + `AND ${filters[i - 1]} LIKE ? `
+                    sql = sql + `AND ${filters[i - 1].key} LIKE ? `
                     const x = `%${filters[i]}%`
                     params.push(x)
                 }
