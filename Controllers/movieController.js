@@ -50,26 +50,23 @@ function show(req, res, next) {
     connection.query(sql, [movieId], (err, result) => {
         if (err) {
             next(new Error("Errore interno del server"));
-        }
-        if (result.length === 0) {
+        } else if (result.length === 0) {
             next(new Error("Il film che stai cercando non è presente nel Database"));
-        }
+        } else {
+            connection.query(sqlReview, [movieId], (err2, reviews) => {
+                let data = {
+                    ...result[0]
+                }
 
-        connection.query(sqlReview, [movieId], (err2, reviews) => {
-            let data = {
-                ...result[0]
-            }
-
-            if (reviews) {
-                data.reviews = reviews
-            }
-            res.status(200).json({
-                status: "Success",
-                data
+                if (reviews) {
+                    data.reviews = reviews
+                }
+                res.status(200).json({
+                    status: "Success",
+                    data
+                })
             })
-
-
-        })
+        }
 
 
     })
